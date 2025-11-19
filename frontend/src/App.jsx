@@ -1,35 +1,47 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Navigate, Outlet, Route, Routes } from "react-router-dom";
+import Dashboard from "./pages/Dashboard";
+import Transactions from "./pages/Transactions";
+import Settings from "./pages/Settings";
+import AccountPage from "./pages/AccountPage";
+import SignIn from "./pages/auth/SignIn";
+import SignUp from "./pages/auth/SignUp";
+import useStore from "./store";
 
-function App() {
-  const [count, setCount] = useState(0)
+// Component layout gốc để bảo vệ các route yêu cầu đăng nhập
+const RootLayout = () => {
+  // Lấy thông tin user từ store toàn cục
+  const { user } = useStore((state) => state);
+  console.log(user);
 
-  return (
+  // Nếu chưa đăng nhập (user = null), chuyển hướng đến trang đăng nhập
+  // Ngược lại, render các route con thông qua Outlet
+  return !user ? (
+    <Navigate to="/sign-in" replace={true} />
+  ) : (
     <>
       <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        <Outlet />
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
-  )
+  );
+};
+
+function App() {
+  return (
+    <div>
+      <Routes>
+        <Route>
+          <Route path="/" element={<Navigate to="/overview" />} />
+          <Route path="/overview" element={<Dashboard />} />
+          <Route path="/transactions" element={<Transactions />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/account" element={<AccountPage />} />
+        </Route>
+        <Route path="/sign-in" element={<SignIn />} />
+        <Route path="/sign-up" element={<SignUp />} />
+      </Routes>
+    </div>
+  );
 }
 
-export default App
+export default App;
